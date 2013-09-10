@@ -95,6 +95,24 @@
           }));
         };
 
+        self.electedParties = function() {
+          // determine which parties have met the barring clause requirement.
+          var parties = [];
+
+          // check if any of the parties have three or more direct mandates
+          _.each(self.directMandatesByParty(), function(count, party) {
+            if (count >= 3) parties.push(party);
+          });
+
+          // check if any of the parties have 5% or more of the nation vote
+          var total = self.totalValidNationalSecondaryVotes();
+          _.each(self.totalNationalSecondaryVotesByParty(), function(votes, party) {
+            if ((votes / total) >= 0.05) parties.push(party);
+          });
+
+          return _.uniq(parties);
+        };
+
       };
 
 
@@ -103,7 +121,7 @@
             election = new Election(results);
 
         console.log(election.directMandatesByParty());
-        console.log(election.totalNationalSecondaryVotesByParty());
+        console.log(election.electedParties());
         //console.log(results);
         console.log('done!');
       });
