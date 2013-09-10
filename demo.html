@@ -76,6 +76,25 @@
             return pair[1];
           });
         };
+
+        self.totalValidNationalSecondaryVotes = function() {
+          // total number of valid secondary votes cast on the federal level
+          var result = _.find(self._admin_results('federal', 99), function(r) {
+              return r.vote_type == 'Zweitstimmen' && r.type != 'Vorperiode' && r.group == 'Gültige';
+          });
+          return result ? result.votes : 0;
+        };
+
+        self.totalNationalSecondaryVotesByParty = function() {
+          // total number of secondary votes cast on the federal level for each party
+          var results = _.filter(self._admin_results('federal', 99), function(r) {
+              return r.vote_type == 'Zweitstimmen' && r.type != 'Vorperiode' && r.is_party;
+          });
+          return _.object(_.map(results, function(r) {
+            return [r.group, r.votes];
+          }));
+        };
+
       };
 
 
@@ -84,6 +103,7 @@
             election = new Election(results);
 
         console.log(election.directMandatesByParty());
+        console.log(election.totalNationalSecondaryVotesByParty());
         //console.log(results);
         console.log('done!');
       });
