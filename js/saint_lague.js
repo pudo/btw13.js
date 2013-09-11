@@ -1,34 +1,44 @@
-// based on: http://de.wikipedia.org/wiki/Sainte-Lagu%C3%AB-Verfahren
+var reduce_sum = function(n, m) { return n+m; };
 
-var saint_lague = function(seats, votes) {
-  // saint lague seat allocation algorithm
-  var divisor = 0.5,
-      values = [],
-      allocation = {},
-      limit = null;
+var saint_lague_iterative = function(votes, seats, mandates) {
+  // this is a fairly manual implementation of the iterative method of 
+  // calculating a saint lague allocation. this complication is made
+  // necessary by the requirement that all states receive at least as 
+  // many seats as they have direct mandates. the only way to ensure 
+  // this is by iteratively estimating an appropriate divisor.
 
-  // generate divisor-based number series for each party
-  _.times(seats, function() {
-    _.each(votes, function(num, party) {
-      var score = (num / divisor);
-      limit = Math.max(score, limit);
-      values.push([party, score]);
+  // based on: http://dip21.bundestag.de/dip21/btd/17/118/1711819.pdf page 2.
+
+  var voteTotal = _.reduce(_.values(votes), reduce_sum, 0),
+      divisor = voteTotal / seats,
+      change = divisor / 2,
+      distribution = {};
+
+  while (true) {
+    // distribute seats amongst candidates, at least the number of
+    // direct mandates they have
+    _.each(votes, function(cvotes, state) {
+      var _seats = Math.max(Math.round(cvotes/divisor), mandates[state] || 0);
+      // TODO: handle 0.5 case.
+      distribution[state] = _seats;
     });
-    divisor += 1;
-  });
-  limit += 1;
+    
+    // get the total number of seats allocated.
+    seats_given = _.reduce(_.values(distribution), reduce_sum, 0);
 
-  // allocate seats by highest available number
-  _.times(seats, function() {
-    values = _.filter(values, function(v) {
-      return v[1] < limit;
-    });
-    var highest = _.max(values, function(v) { return v[1]; }),
-        party = highest[0];
-    allocation[party] = allocation[party] ? allocation[party] + 1 : 1;
-    limit = highest[1];
-  });
-  return allocation;
+    if (seats_given == seats) {
+      // right amount of seats have been allocated, done.
+      return distribution;
+    }
+    if (seats_given > seats) {
+      // too many seats, try a larger divisor.
+      divisor = divisor + change;
+    } else {
+      // too few seats, try a smaller divisor.
+      divisor = divisor - change;
+    }
+    change = change * 0.8;
+  }
 };
 
-//console.log(saint_lague(15, {'X': 5200, 'Y': 1700, 'Z': 3100}));
+//console.log(saint_lague_iterative({'X': 5200, 'Y': 1700, 'Z': 3100}, 15, {}));
