@@ -1,5 +1,6 @@
+var Bundestagswahl = Bundestagswahl || {};
 
-var Tabulator = function(results) {
+Bundestagswahl.Tabulator = function(results) {
   var self = this;
 
   // the raw result objects from the interim tallies.
@@ -149,13 +150,14 @@ var Tabulator = function(results) {
     // calculate the total number of seats which are allocated directly to a
     // person which is part of no party or a party not meeting the barring 
     // clause.
-    return _.reduce(_.values(self.nonFactionSeatsByState()), reduce_sum, 0);
+    return _.reduce(_.values(self.nonFactionSeatsByState()),
+      Bundestagswahl.reduce_sum, 0);
   };
 
   self.availableSeatsByState = _.memoize(function() {
     // calculate how many seats per state will go into saint lague distribution.
     var seats = _.map(self.nonFactionSeatsByState(), function(blocked, state) {
-      return [state, STATE_SEATS[state] - blocked];
+      return [state, Bundestagswahl.STATE_SEATS[state] - blocked];
     });
     return _.object(seats);
   });
@@ -173,7 +175,7 @@ var Tabulator = function(results) {
     var initalDistribution = _.map(self.secondaryResultsByState(), function(parties, state) {
       // count only parties meeting the barring condition:
       parties = _.object(_.filter(_.pairs(parties), function(p) { return _.contains(fs, p[0]); }));
-      var seats = saint_lague_iterative(parties, stateSeats[state], {});
+      var seats = Bundestagswahl.saint_lague_iterative(parties, stateSeats[state], {});
       _.each(seats, function(s, p) {
         var mandates = directMandates[state][p]||0;
         // create excess mandates
@@ -240,7 +242,7 @@ var Tabulator = function(results) {
       _.each(results, function(votes, state) { stateVotes[state] = votes[party]; });
       var mandates = {};
       _.each(directMandates, function(ms, state) { mandates[state] = ms[party]; });
-      distribution[party] = saint_lague_iterative(stateVotes, seats, mandates);
+      distribution[party] = Bundestagswahl.saint_lague_iterative(stateVotes, seats, mandates);
     });
 
     return distribution;

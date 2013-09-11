@@ -1,6 +1,8 @@
-var reduce_sum = function(n, m) { return n+m; };
+var Bundestagswahl = Bundestagswahl || {};
 
-var saint_lague_iterative = function(votes, seats, mandates) {
+Bundestagswahl.reduce_sum = function(n, m) { return n+m; };
+
+Bundestagswahl.saint_lague_iterative = function(votes, seats, mandates) {
   // this is a fairly manual implementation of the iterative method of 
   // calculating a saint lague allocation. this complication is made
   // necessary by the requirement that all states receive at least as 
@@ -9,7 +11,7 @@ var saint_lague_iterative = function(votes, seats, mandates) {
 
   // based on: http://dip21.bundestag.de/dip21/btd/17/118/1711819.pdf page 2.
 
-  var voteTotal = _.reduce(_.values(votes), reduce_sum, 0),
+  var voteTotal = _.reduce(_.values(votes), Bundestagswahl.reduce_sum, 0),
       divisor = voteTotal / seats,
       change = divisor / 2,
       distribution = {};
@@ -24,7 +26,8 @@ var saint_lague_iterative = function(votes, seats, mandates) {
     });
     
     // get the total number of seats allocated.
-    seats_given = _.reduce(_.values(distribution), reduce_sum, 0);
+    seats_given = _.reduce(_.values(distribution),
+      Bundestagswahl.reduce_sum, 0);
 
     if (seats_given == seats) {
       // right amount of seats have been allocated, done.

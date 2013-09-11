@@ -1,5 +1,7 @@
+var Bundestagswahl = Bundestagswahl || {};
+
 // Source: http://bundeswahlleiter.de/de/aktuelle_mitteilungen/downloads/20130902_Sitzkontingente.pdf
-var STATE_SEATS = {
+Bundestagswahl.STATE_SEATS = {
     1: 22,  // SH
     2: 13,  // HH
     3: 59,  // NI

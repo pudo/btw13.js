@@ -19,8 +19,8 @@
 
 
       d3.text('data/kerg.csv', 'text/plain; charset=iso-8859-1', function(data) {
-        var results = parseResults(data),
-            tabulator = new Tabulator(results);
+        var results = Bundestagswahl.parseResults(data),
+            tabulator = new Bundestagswahl.Tabulator(results);
 
 
         console.log(tabulator.tabulate());

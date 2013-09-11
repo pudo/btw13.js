@@ -1,5 +1,6 @@
+var Bundestagswahl = Bundestagswahl || {};
 
-function parseResults(data) {
+Bundestagswahl.parseResults = function(data) {
   // Parse a results data file from Bundeswahlleiter.
   // Format is described at: http://opendatalabs.org/de/wahldaten/fi/Beschreibung_Ergebnisdatei_csv.pdf
 
@@ -63,4 +64,4 @@ function parseResults(data) {
     });
   });
   return results;
-}
+};
