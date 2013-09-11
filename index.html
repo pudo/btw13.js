@@ -26,10 +26,10 @@
     <script id="bigboard-template" type="text/x-handlebars-template">
       <header class="container">
         <div class="row">
-          <div class="col-md-10">
+          <div class="col-xs-10">
             <div class="election-name">{{summary.election}}</div>
           </div>
-          <div class="col-md-2">
+          <div class="col-xs-2">
             <div class="mark-temporary">{{summary.result}}</div>
           </div>
         <div>
@@ -38,29 +38,29 @@
       <div class="container">
         {{#parties}}
           <div class="row result {{classes}}">
-            <div class="col-md-2 party-name fg-{{slug}} light">
+            <div class="col-xs-2 party-name fg-{{slug}} light">
               {{name}}
             </div>
-            <div class="col-md-2 numeric">
+            <div class="col-xs-2 numeric">
               {{percentage}}%
             </div>
-            <div class="col-md-1">
+            <div class="col-xs-1">
               <span class="trend {{percentage_trend}}">{{percentage_diff_text}}</span>
             </div>
-            <div class="col-md-2 numeric">
+            <div class="col-xs-2 numeric">
               {{direct_mandates}} <span class="legend">Kreise</span>
             </div>
-            <div class="col-md-1">
+            <div class="col-xs-1">
               <span class="trend {{direct_mandates_trend}}">{{direct_mandates_diff_text}}</span>
             </div>
-            <div class="col-md-2 numeric">
+            <div class="col-xs-2 numeric">
               {{total_seats}}
               <span class="legend">Sitze</span>
             </div>
-            <div class="col-md-1">
+            <div class="col-xs-1">
               <span class="trend {{total_seats_trend}}">{{total_seats_diff_text}}</span>
             </div>
-            <!--div class="col-md-2 numeric">
+            <!--div class="col-xs-2 numeric">
               {{secondary_votes}}
             </div-->
           </div>

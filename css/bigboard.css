@@ -1,7 +1,28 @@
 body {
   background-color: #111;
   color: #eee;
-  font-size: 1.6em;
+  font-size: 1.0em;
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  body {
+    font-size: 1.4em;
+  }
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  body {
+    font-size: 1.6em;
+  }
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  body {
+    font-size: 1.8em;
+  }
 }
 
 body, p {
