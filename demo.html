@@ -5,6 +5,8 @@
     <title>btw13.js</title>
   </head>
   <body>
+
+    <h1>Bundestagswahl 2013; Tabulator</h1>
     
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js" charset="utf-8"></script>
@@ -15,6 +17,7 @@
     <script>
       var Election = function(results) {
         var self = this;
+
         // the raw result objects from the interim tallies.
         self.results = results;
 
@@ -47,6 +50,11 @@
           return _.filter(self.results, function(r) {
             return r.admin_level === level && r.admin_id === id;
           });
+        }
+
+        self.parties = function() {
+          // a list of all parties.
+          return _.uniq(_.pluck(_.filter(results, function(r) { return r.is_party; }), 'group'));
         }
 
         self.directMandates = _.memoize(function() {
@@ -157,7 +165,7 @@
           // calculate the total number of seats which are allocated directly to a
           // person which is part of no party or a party not meeting the barring 
           // clause.
-          return _.reduce(_.values(self.nonFactionSeatsByState()), function(m, s) { return m + s; }, 0);
+          return _.reduce(_.values(self.nonFactionSeatsByState()), reduce_sum, 0);
         }
 
         self.availableSeatsByState = _.memoize(function() {
@@ -206,7 +214,7 @@
           return _.min(divisors);
         }
 
-        self.upperDistribution = function() {
+        self.upperDistribution = _.memoize(function() {
           // determine the number of seats available to each party on a national level, 
           // prior to their distribution to the states.
 
@@ -230,9 +238,9 @@
             distribution[party] = Math.round(votes / divisor);
           });
           return distribution;
-        };
+        });
 
-        self.lowerDistribution = function() {
+        self.lowerDistribution = _.memoize(function() {
           // distribute the seats allocated to the parties in upperDistribution to
           // state lists and direct mandates.
           console.log("Errechne Unterverteilung...");
@@ -251,7 +259,60 @@
           });
 
           return distribution;
-        };
+        });
+
+        self.tabulate = function() {
+          // generate an object to interpret the vote results.
+          // TODO: include more stats on participation, primary votes.
+          var parties = {},
+              states = {},
+              upper = self.upperDistribution(),
+              lower = self.lowerDistribution(),
+              fs = self.factions(),
+              directMandatesByParty = self.directMandatesByParty(),
+              directMandatesByStateAndParty = self.directMandatesByStateAndParty(),
+              nationalSecondaryVotes = self.totalNationalSecondaryVotesByParty(),
+              stateSecondaryVotes = self.secondaryResultsByState();
+
+          _.each(self.parties(), function(party) {
+            var is_faction = _.contains(fs, party),
+                seats = is_faction ? upper[party] : (directMandatesByParty[party] || 0);
+            parties[party] = {
+              is_faction: is_faction,
+              total_seats: seats,
+              direct_mandates: directMandatesByParty[party] || 0,
+              secondary_votes: nationalSecondaryVotes[party]
+            };
+          });
+
+          _.each(self.states(), function(state) {
+            var parties = {};
+            _.each(self.parties(), function(party) {
+              var dm = directMandatesByStateAndParty[state.id][party] || 0,
+                  seats = lower[party] ? lower[party][state.id] || dm : dm; 
+              parties[party] = {
+                total_seats: seats,
+                direct_mandates: dm,
+                secondary_votes: stateSecondaryVotes[state.id][party] || 0
+              };
+            });
+            states[state.id] = {
+              label: state.label,
+              parties: parties
+            }
+          });
+
+          return {
+            summary: {
+              election: self.results.election_name, 
+              result: self.results.result_type,
+              valid_votes: self.totalValidNationalSecondaryVotes(),
+              regular_seats: self.regularSeatsCount()
+            },
+            parties: parties,
+            states: states
+          }
+        }
 
       };
 
@@ -260,7 +321,8 @@
         var results = parseResults(data),
             election = new Election(results);
 
-        console.log(election.upperDistribution());
+
+        console.log(election.tabulate());
         //console.log(election.upperDistribution2());
         //console.log(election.unbarredParties());
         //console.log(results);

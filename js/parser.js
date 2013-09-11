@@ -24,16 +24,18 @@ function parseResults(data) {
   }
 
   var lines = data.split('\n').map(function(r) { return r.split(';'); }),
-      results = [],
-      // file manifest:
-      election_name = lines.shift()[0],
-      result_type = lines.shift()[0],
-      // headers (party, vote type, result type):
-      group_header = rightPad(lines.shift()).slice(3),
+      results = [];
+  
+  // file manifest:
+  results.election_name = lines.shift()[0];
+  results.result_type = lines.shift()[0];
+  
+  // headers (party, vote type, result type):
+  var group_header = rightPad(lines.shift()).slice(3),
       vote_header = rightPad(lines.shift()).slice(3),
       type_header = rightPad(lines.shift()).slice(3);
   
-  lines.forEach(function(cells, row_id) {
+  _.each(lines, function(cells, row_id) {
     // row headers, with regional info:
     var admin_id = numericCell(cells.shift()),
         admin_label = cells.shift(),
@@ -43,7 +45,7 @@ function parseResults(data) {
 
     // skip empty lines
     if (admin_id === 0) return;
-    cells.forEach(function(value, i) {
+    _.each(cells, function(value, i) {
       // TODO: skip all 'type': 'Vorperiode'?
       results.push({
         //'cell_index': i,
