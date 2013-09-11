@@ -1,6 +1,7 @@
 body {
   background-color: #111;
   color: #eee;
+  font-size: 1.6em;
 }
 
 body, p {
@@ -19,13 +20,44 @@ h1, h2, h3 {
 
 header, footer {
   padding: 0.4em;
+  background-color: #ddd;
+  color: black;
 }
 
 header {
   font-size: 1.2em;
+  border-bottom: 0.2em solid #aaa;
+}
+
+footer {
+  margin-top: 3em;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 3em;
 }
 
 .mark-temporary {
   background-color: red;
   text-align: center;
 }
+
+.row.result {
+  padding-bottom: 0.2em;
+  padding-top: 0.3em;
+  font-size: 1.3em;
+}
+
+.row.result.elected {
+  background-color: #222; 
+}
+
+.row.result.elected.faction {
+  background-color: #666;   
+}
+
+.row.result .party-name {
+  font-weight: bolder;
+}
+

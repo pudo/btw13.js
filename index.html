@@ -5,7 +5,7 @@
     <title>btw13.js</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0-rc1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="http://assets.pudo.org/spiegel/fonts/fonts.css" />
     <link rel="stylesheet" type="text/css" href="css/bigboard.css" />
     <link rel="shortcut icon" href="http://assets.pudo.org/img/favicon.ico">
@@ -13,38 +13,90 @@
   </head>
   <body>
 
-    <header class="container">
-      <div class="row">
-        <div class="col-10">
-          <div id="election-name"></div>
+    <div id="airlock">
+      <div class="container loading">
+        <div class="row">
+          <div class="col-md-12">
+            Ergebnisse werden geladen und tabuliert...
+          </div>
         </div>
-        <div class="col-2">
-          <div class="mark-temporary" id="result-type"></div>
-        </div>
-      <div>
-    </header>
+      </div>
+    </div>
 
-    <footer class="container">
-      <div class="row">
-        <div class="col-6">
-          <a href="https://github.com/pudo/btw13.js">btw13.js</a>: Auswertung auf Basis der Daten des Bundeswahlleiters.
-        </div>
-      <div>
-    </footer>
+    <script id="bigboard-template" type="text/x-handlebars-template">
+      <header class="container">
+        <div class="row">
+          <div class="col-md-10">
+            <div id="election-name">{{summary.election}}</div>
+          </div>
+          <div class="col-md-2">
+            <div class="mark-temporary" id="result-type">{{summary.result}}</div>
+          </div>
+        <div>
+      </header>
+
+      <div class="container">
+        {{#parties}}
+          <div class="row result {{classes}}">
+            <div class="col-md-3 party-name">
+              {{name}}
+            </div>
+            <div class="col-md-2">
+              {{percentage}}%
+            </div>
+            <div class="col-md-2">
+              {{direct_mandates}} WK
+            </div>
+            <div class="col-md-2">
+              {{total_seats}} Sitze
+            </div>
+          </div>
+        {{/parties}}
+      </div>
+
+      <footer class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <a href="https://github.com/pudo/btw13.js">btw13.js</a>: Auswertung auf Basis der Daten des Bundeswahlleiters.
+          </div>
+        <div>
+      </footer>
+    </script>
     
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js" charset="utf-8"></script>
 
     <script src="btw13.min.js" charset="utf-8"></script>
     <script>
       $(function() {
+        var template = Handlebars.compile($('#bigboard-template').html());
+
         function handleData(data) {
           var results = Bundestagswahl.parseResults(data),
               tabulator = new Bundestagswahl.Tabulator(results),
               tab = tabulator.tabulate();
+
+          // Format party results.
+          tab.parties = _.map(tab.parties, function(v, k) {
+            v.name = k;
+            v.classes = [];
+            if (v.total_seats > 0) v.classes.push('elected');
+            if (v.is_fraktion > 0) v.classes.push('faction');
+            v.classes = v.classes.join(' ');
+            v.percentage_num = (v.secondary_votes / tab.summary.valid_votes*100)
+            v.percentage = v.percentage_num.toFixed(2);
+            return v;
+          });
+          tab.parties = _.filter(tab.parties, function(e) {
+            return e.percentage_num > 0.4;
+          });
+          tab.parties = _.sortBy(tab.parties, function(e) {
+            return e.percentage_num * -1;
+          });
           console.log(tab);
-          $('#election-name').html(tab.summary.election);
-          $('#result-type').html(tab.summary.result);
+          $('#airlock').html(template(tab));
         }
 
         $.ajax({
