@@ -1,0 +1,31 @@
+body {
+  background-color: #111;
+  color: #eee;
+}
+
+body, p {
+  font-family: 'SpiegelSansWeb', Verdana, sans-serif;
+}
+
+a, a:visited, a:hover {
+  color: red;
+}
+
+h1, h2, h3 {
+  line-height: 1.1em;
+  font-weight: normal;
+  font-family: 'SpiegelHeadlineWeb', Verdana, sans-serif;
+}
+
+header, footer {
+  padding: 0.4em;
+}
+
+header {
+  font-size: 1.2em;
+}
+
+.mark-temporary {
+  background-color: red;
+  text-align: center;
+}

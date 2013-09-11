@@ -1,23 +1,59 @@
 <!doctype html>
-<html>
+<html lang="de">
   <head>
     <meta charset="utf-8">
     <title>btw13.js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0-rc1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="http://assets.pudo.org/spiegel/fonts/fonts.css" />
+    <link rel="stylesheet" type="text/css" href="css/bigboard.css" />
+    <link rel="shortcut icon" href="http://assets.pudo.org/img/favicon.ico">
+
   </head>
   <body>
 
-    <h1>Bundestagswahl 2013; Tabulator</h1>
+    <header class="container">
+      <div class="row">
+        <div class="col-10">
+          <div id="election-name"></div>
+        </div>
+        <div class="col-2">
+          <div class="mark-temporary" id="result-type"></div>
+        </div>
+      <div>
+    </header>
+
+    <footer class="container">
+      <div class="row">
+        <div class="col-6">
+          <a href="https://github.com/pudo/btw13.js">btw13.js</a>: Auswertung auf Basis der Daten des Bundeswahlleiters.
+        </div>
+      <div>
+    </footer>
     
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js" charset="utf-8"></script>
 
     <script src="btw13.min.js" charset="utf-8"></script>
     <script>
-      d3.text('data/kerg.csv', 'text/plain; charset=iso-8859-1', function(data) {
-        var results = Bundestagswahl.parseResults(data),
-            tabulator = new Bundestagswahl.Tabulator(results);
+      $(function() {
+        function handleData(data) {
+          var results = Bundestagswahl.parseResults(data),
+              tabulator = new Bundestagswahl.Tabulator(results),
+              tab = tabulator.tabulate();
+          console.log(tab);
+          $('#election-name').html(tab.summary.election);
+          $('#result-type').html(tab.summary.result);
+        }
 
-        console.log(tabulator.tabulate());
+        $.ajax({
+          url: 'data/kerg.csv',
+          dataType: 'text',
+          success: handleData,
+          mimeType: 'text/plain; charset=iso-8859-1'
+        });
+        
       });
     </script>
   </body>
