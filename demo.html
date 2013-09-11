@@ -263,6 +263,12 @@
               directMandates = self.directMandatesByStateAndParty();
           
           _.each(partySeats, function(seats, party) {
+            // this is a fairly manual implementation of the iterative method of 
+            // calculating a saint lague allocation. this complication is made
+            // necessary by the requirement that all states receive at least as 
+            // many seats as they have direct mandates. the only way to ensure 
+            // this is by iteratively estimating an appropriate divisor.
+             
             // based on: http://dip21.bundestag.de/dip21/btd/17/118/1711819.pdf page 2.
             var stateVotes = {};
             _.each(results, function(votes, state) { stateVotes[state] = votes[party]; });
