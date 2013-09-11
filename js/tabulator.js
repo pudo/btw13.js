@@ -1,6 +1,6 @@
 var Bundestagswahl = Bundestagswahl || {};
 
-Bundestagswahl.Tabulator = function(results) {
+Bundestagswahl.Tabulator = function(results, result_type) {
   var self = this;
 
   // the raw result objects from the interim tallies.
@@ -48,7 +48,7 @@ Bundestagswahl.Tabulator = function(results) {
     var pairs = _.map(self.districts(), function(district) {
       // get all the relevant results for party candidates. 
       var results = _.filter(self._admin_results('district', district.id), function(r) {
-        return r.is_party && r.vote_type == 'Erststimmen' && r.type != 'Vorperiode';
+        return r.is_party && r.vote_type == 'Erststimmen' && r.type == result_type;
       });
       var winner,
           bestResult = _.max(results, function(r) { return r.votes; });
@@ -85,7 +85,7 @@ Bundestagswahl.Tabulator = function(results) {
   self.totalValidNationalSecondaryVotes = _.memoize(function() {
     // total number of valid secondary votes cast on the federal level
     var result = _.find(self._admin_results('federal', 99), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type != 'Vorperiode' && r.group == 'Gültige';
+        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.group == 'Gültige';
     });
     return result ? result.votes : 0;
   });
@@ -93,7 +93,7 @@ Bundestagswahl.Tabulator = function(results) {
   self.totalNationalSecondaryVotesByParty = _.memoize(function() {
     // total number of secondary votes cast on the federal level for each party
     var results = _.filter(self._admin_results('federal', 99), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type != 'Vorperiode' && r.is_party;
+        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.is_party;
     });
     return _.object(_.map(results, function(r) {
       return [r.group, r.votes];
@@ -105,7 +105,7 @@ Bundestagswahl.Tabulator = function(results) {
     var counts = {};
     _.each(self.states(), function(state) {
       var results = _.filter(self._admin_results('state', state.id), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type != 'Vorperiode' && r.is_party;
+        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.is_party;
       });
       counts[state.id] = _.object(_.map(results, function(r) {
         return [r.group, r.votes];

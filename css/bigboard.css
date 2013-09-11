@@ -78,6 +78,22 @@ footer {
   font-weight: bolder;
 }
 
+.row.result .trend {
+  font-size: 0.8em;
+  margin-left: -15px;
+}
+
+.trend.neutral {
+  color: #666;
+}
+
+.trend.increase {
+  color: #349b09;
+}
+
+.trend.decrease {
+  color: #e30820;
+}
 
 
 /* Party colors. */

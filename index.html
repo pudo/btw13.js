@@ -38,17 +38,27 @@
       <div class="container">
         {{#parties}}
           <div class="row result {{classes}}">
-            <div class="col-md-3 party-name fg-{{slug}} light">
+            <div class="col-md-2 party-name fg-{{slug}} light">
               {{name}}
             </div>
             <div class="col-md-2 numeric">
               {{percentage}}%
             </div>
-            <div class="col-md-3 numeric">
+            <div class="col-md-1">
+              <span class="trend {{percentage_trend}}">{{percentage_diff_text}}</span>
+            </div>
+            <div class="col-md-2 numeric">
               {{direct_mandates}} <span class="legend">Kreise</span>
             </div>
-            <div class="col-md-3 numeric">
-              {{total_seats}} <span class="legend">Sitze</span>
+            <div class="col-md-1">
+              <span class="trend {{direct_mandates_trend}}">{{direct_mandates_diff_text}}</span>
+            </div>
+            <div class="col-md-2 numeric">
+              {{total_seats}}
+              <span class="legend">Sitze</span>
+            </div>
+            <div class="col-md-1">
+              <span class="trend {{total_seats_trend}}">{{total_seats_diff_text}}</span>
             </div>
             <!--div class="col-md-2 numeric">
               {{secondary_votes}}
@@ -59,7 +69,7 @@
 
       <footer class="container">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-12">
             <a href="https://github.com/pudo/btw13.js">btw13.js</a>: Auswertung auf Basis der Daten des Bundeswahlleiters.
           </div>
         <div>
@@ -76,28 +86,57 @@
       $(function() {
         var template = Handlebars.compile($('#bigboard-template').html());
 
+        function numericTrend(n) {
+          if (n==0) return 'neutral';
+          if (n>0) return 'increase';
+          return 'decrease';
+        }
+
+        function trendText(n) {
+          if (parseFloat(n)==0) return '';
+          if (parseFloat(n)>0) return '+' + n;
+          return '' + n; 
+        }
+
         function partySlug(name) {
           name = name.toLowerCase().replace(/ü/g, 'u').replace(/ä/g, 'a')
-          name = name.replace(/ö/g, 'o').replace(/[^a-zA-Z0-9]/g, '');
-          return name;
+          return name.replace(/ö/g, 'o').replace(/[^a-zA-Z0-9]/g, '');
         }
 
         function handleData(data) {
           var results = Bundestagswahl.parseResults(data),
-              tabulator = new Bundestagswahl.Tabulator(results),
-              tab = tabulator.tabulate();
+              tabulator = new Bundestagswahl.Tabulator(results, results.result_type),
+              tab = tabulator.tabulate(),
+              previous_tabulator = new Bundestagswahl.Tabulator(results, 'Vorperiode'),
+              previous_tab = previous_tabulator.tabulate();
 
           // Format party results.
           tab.parties = _.map(tab.parties, function(v, k) {
+            var pv = previous_tab.parties[k];
             v.name = k;
             v.slug = partySlug(k);
-            console.log(v.slug);
+
+            v.percentage_num = (v.secondary_votes / tab.summary.valid_votes*100)
+            v.prev_percentage = (pv.secondary_votes / previous_tab.summary.valid_votes*100)
+            v.percentage = v.percentage_num.toFixed(1);
+
+            v.percentage_diff = v.percentage_num - v.prev_percentage;
+            v.percentage_trend = numericTrend(v.percentage_diff);
+            v.percentage_diff_text = trendText(v.percentage_diff.toFixed(1));
+
+            v.total_seats_diff = v.total_seats - pv.total_seats;
+            v.total_seats_trend = numericTrend(v.total_seats_diff);
+            v.total_seats_diff_text = trendText(v.total_seats_diff);
+
+            v.direct_mandates_diff = v.direct_mandates - pv.direct_mandates;
+            v.direct_mandates_trend = numericTrend(v.direct_mandates_diff);
+            v.direct_mandates_diff_text = trendText(v.direct_mandates_diff);
+
+            //console.log(v);
             v.classes = [];
             if (v.total_seats > 0) v.classes.push('elected');
             if (v.is_fraktion > 0) v.classes.push('faction');
             v.classes = v.classes.join(' ');
-            v.percentage_num = (v.secondary_votes / tab.summary.valid_votes*100)
-            v.percentage = v.percentage_num.toFixed(2);
             return v;
           });
           tab.parties = _.filter(tab.parties, function(e) {
