@@ -126,6 +126,20 @@
           }));
         };
 
+        self.secondaryResultsByState = function() {
+          // per-party secondary votes, grouped by state.
+          var counts = {};
+          _.each(self.states(), function(state) {
+            var results = _.filter(self._admin_results('state', state.id), function(r) {
+              return r.vote_type == 'Zweitstimmen' && r.type != 'Vorperiode' && r.is_party;
+            });
+            counts[state.id] = _.object(_.map(results, function(r) {
+              return [r.group, r.votes];
+            }));
+          });
+          return counts;  
+        };
+
         self.factions = function() {
           // determine which parties have met the barring clause requirement.
           var parties = [];
@@ -155,7 +169,47 @@
                 return [state, count];
               });
           return _.object(states);
-        }
+        };
+
+        self.availableSeatsByState = function() {
+          // calculate how many seats per state will go into saint lague distribution.
+          var seats = _.map(self.nonFactionSeatsByState(), function(blocked, state) {
+            return [state, STATE_SEATS[state] - blocked];
+          });
+          return _.object(seats);
+        };
+
+        self.minimalSeatsByParty = function() {
+          // in order to calculate the minimal number of seats which each faction is
+          // to receive, all available seats per state are divvied up according to 
+          // saint lague, then excess mandates are added and the resulting numbers are
+          // added up on a nation level.
+          var directMandates = self.directMandatesByStateAndParty(),
+              stateSeats = self.availableSeatsByState(),
+              fs = self.factions(),
+              minimalSeats = {};
+
+          var initalDistribution = _.map(self.secondaryResultsByState(), function(parties, state) {
+            // count only parties meeting the barring condition:
+            parties = _.object(_.filter(_.pairs(parties), function(p) { return _.contains(fs, p[0]); }));
+            var seats = saint_lague(stateSeats[state], parties);
+            _.each(seats, function(s, p) {
+              var mandates = directMandates[state][p]||0;
+              // create excess mandates
+              seats[p] = Math.max(s, mandates);
+            });
+            return seats;
+          });
+
+          // sum up party seats on a national level.
+          _.each(initalDistribution, function(parties) {
+            _.each(parties, function(seats, party) {
+              minimalSeats[party] = minimalSeats[party] ? minimalSeats[party] + seats : seats;
+            });
+          });
+          return minimalSeats;
+        };
+
 
       };
 
@@ -164,7 +218,7 @@
         var results = parseResults(data),
             election = new Election(results);
 
-        console.log(election.nonFactionSeatsByState());
+        console.log(election.minimalSeatsByParty());
         //console.log(election.unbarredParties());
         //console.log(results);
         console.log('done!');
