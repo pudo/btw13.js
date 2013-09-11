@@ -27,10 +27,10 @@
       <header class="container">
         <div class="row">
           <div class="col-md-10">
-            <div id="election-name">{{summary.election}}</div>
+            <div class="election-name">{{summary.election}}</div>
           </div>
           <div class="col-md-2">
-            <div class="mark-temporary" id="result-type">{{summary.result}}</div>
+            <div class="mark-temporary">{{summary.result}}</div>
           </div>
         <div>
       </header>
@@ -38,18 +38,21 @@
       <div class="container">
         {{#parties}}
           <div class="row result {{classes}}">
-            <div class="col-md-3 party-name">
+            <div class="col-md-3 party-name fg-{{slug}} light">
               {{name}}
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 numeric">
               {{percentage}}%
             </div>
-            <div class="col-md-2">
-              {{direct_mandates}} WK
+            <div class="col-md-3 numeric">
+              {{direct_mandates}} <span class="legend">Kreise</span>
             </div>
-            <div class="col-md-2">
-              {{total_seats}} Sitze
+            <div class="col-md-3 numeric">
+              {{total_seats}} <span class="legend">Sitze</span>
             </div>
+            <!--div class="col-md-2 numeric">
+              {{secondary_votes}}
+            </div-->
           </div>
         {{/parties}}
       </div>
@@ -73,6 +76,12 @@
       $(function() {
         var template = Handlebars.compile($('#bigboard-template').html());
 
+        function partySlug(name) {
+          name = name.toLowerCase().replace(/ü/g, 'u').replace(/ä/g, 'a')
+          name = name.replace(/ö/g, 'o').replace(/[^a-zA-Z0-9]/g, '');
+          return name;
+        }
+
         function handleData(data) {
           var results = Bundestagswahl.parseResults(data),
               tabulator = new Bundestagswahl.Tabulator(results),
@@ -81,6 +90,8 @@
           // Format party results.
           tab.parties = _.map(tab.parties, function(v, k) {
             v.name = k;
+            v.slug = partySlug(k);
+            console.log(v.slug);
             v.classes = [];
             if (v.total_seats > 0) v.classes.push('elected');
             if (v.is_fraktion > 0) v.classes.push('faction');

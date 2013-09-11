@@ -20,17 +20,24 @@ h1, h2, h3 {
 
 header, footer {
   padding: 0.4em;
-  background-color: #ddd;
+  background-color: #eee;
   color: black;
 }
 
 header {
   font-size: 1.2em;
-  border-bottom: 0.2em solid #aaa;
+  border-bottom: 0.2em solid #bbb;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+header .election-name {
+  color: #aaa;
 }
 
 footer {
   margin-top: 3em;
+  border-top: 0.2em solid #bbb;
 }
 
 .loading {
@@ -40,13 +47,23 @@ footer {
 
 .mark-temporary {
   background-color: red;
+  color: white;
   text-align: center;
 }
 
 .row.result {
   padding-bottom: 0.2em;
   padding-top: 0.3em;
+  border-bottom: 2px solid #111;
   font-size: 1.3em;
+}
+
+.row.result .numeric {
+  text-align: right;
+}
+
+.row.result .legend {
+  color: #666;
 }
 
 .row.result.elected {
@@ -54,10 +71,45 @@ footer {
 }
 
 .row.result.elected.faction {
-  background-color: #666;   
+  background-color: #888;   
 }
 
 .row.result .party-name {
   font-weight: bolder;
+}
+
+
+
+/* Party colors. */
+.fg-cdu, .fg-csu {
+  color: #0c065d;
+}
+
+.fg-cdu.light, .fg-csu.light {
+  color: #fff;
+}
+
+.fg-spd {
+  color: #e30820;
+}
+
+.fg-fdp {
+  color: #ffc907;
+}
+
+.fg-dielinke {
+  color: #b939c1;
+}
+
+.fg-grune {
+  color: #349b09;
+}
+
+.fg-piraten {
+  color: #f60;
+}
+
+.fg-afd {
+  color: #97d2fb;
 }
 
