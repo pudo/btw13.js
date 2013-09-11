@@ -80,7 +80,10 @@ footer {
 
 .row.result .trend {
   font-size: 0.8em;
-  margin-left: -15px;
+  margin-left: -20px;
+  display: inline-block;
+  min-width: 2.2em;
+  text-align: right;
 }
 
 .trend.neutral {
@@ -129,3 +132,6 @@ footer {
   color: #97d2fb;
 }
 
+.fg-npd, .fg-rep {
+  color: #703800;
+}
