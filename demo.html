@@ -160,7 +160,8 @@
 
         self.nonFactionSeatsByState = function() {
           // calculate the number of seats per state which are allocated
-          // directly to a party which doesn't meet the barring clause.
+          // directly to a party (or candidate) which doesn't meet the
+          // barring clause.
           var fs = self.factions(),
               states = _.map(self.directMandatesByStateAndParty(), function(parties, state) {
                 var count = _.reduce(_.pairs(parties), function(m, p) {
@@ -170,6 +171,13 @@
               });
           return _.object(states);
         };
+
+        self.nationalNonFactionSeats = function() {
+          // calculate the total number of seats which are allocated directly to a
+          // person which is part of no party or a party not meeting the barring 
+          // clause.
+          return _.reduce(_.values(self.nonFactionSeatsByState()), function(m, s) { return m + s; }, 0);
+        }
 
         self.availableSeatsByState = function() {
           // calculate how many seats per state will go into saint lague distribution.
@@ -211,6 +219,43 @@
         };
 
 
+        self.upperDistribution = function() {
+          // determine the number of seats available to each party on a national level, 
+          // prior to their distribution to the states.
+          // WARNING: does not include direct mandates gained by candidates without a 
+          // faction.
+          var seatsAvailable = self.regularSeatsCount() - self.nationalNonFactionSeats(),
+              minimalSeats = self.minimalSeatsByParty(),
+              fs = self.factions(),
+              results = self.totalNationalSecondaryVotesByParty();
+
+          var hasMinimalSeats = function(distribution) {
+            // each party is granted at least the sum of all the seats previous allocated
+            // to it in a per-state saint lague distribution.
+            var valid = true;
+            _.each(distribution, function(seats, party) {
+              if (seats < minimalSeats[party]) {
+                valid = false;
+              }
+            });
+            return valid;
+          };
+
+          // filter out non-faction secondary votes.
+          results = _.object(_.filter(_.pairs(results), function(p) { return _.contains(fs, p[0]); }));
+
+          while(true) {
+            // increase the number of seats in parliament until each party at least has
+            // its minimal seats allocated.
+            distribution = saint_lague(seatsAvailable, results);
+            if (hasMinimalSeats(distribution)) {
+              return distribution;
+            }
+            seatsAvailable++;
+          }
+        };
+
+
       };
 
 
@@ -218,7 +263,7 @@
         var results = parseResults(data),
             election = new Election(results);
 
-        console.log(election.minimalSeatsByParty());
+        console.log(election.upperDistribution());
         //console.log(election.unbarredParties());
         //console.log(results);
         console.log('done!');
