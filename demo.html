@@ -10,6 +10,7 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js" charset="utf-8"></script>
 
     <script src="js/parser.js" charset="utf-8"></script>
+    <script src="js/saint_lague.js" charset="utf-8"></script>
     <script>
       // Source: http://bundeswahlleiter.de/de/aktuelle_mitteilungen/downloads/20130902_Sitzkontingente.pdf
       var STATE_SEATS = {
@@ -30,40 +31,6 @@
         15: 15, // ST
         16: 17  // TH
       };
-
-      var saint_lague = function(seats, votes) {
-        // saint lague seat allocation algorithm
-        // based on: http://de.wikipedia.org/wiki/Sainte-Lagu%C3%AB-Verfahren
-        var divisor = 0.5,
-            values = [], 
-            allocation = {},
-            limit = null;
-
-        // generate divisor-based number series for each party
-        _.times(seats, function() {
-          _.each(votes, function(num, party) {
-            var score = (num / divisor);
-            limit = Math.max(score, limit);
-            values.push([party, score]);
-          });
-          divisor += 1;
-        });
-        limit += 1;
-
-        // allocate seats by highest available number
-        _.times(seats, function() {
-          values = _.filter(values, function(v) {
-            return v[1] < limit;
-          });
-          var highest = _.max(values, function(v) { return v[1]; }),
-              party = highest[0];
-          allocation[party] = allocation[party] ? allocation[party] + 1 : 1;
-          limit = highest[1];
-        });
-        return allocation;
-      };
-
-      console.log(saint_lague(15, {'X': 5200, 'Y': 1700, 'Z': 3100}));
 
       var Election = function(results) {
         var self = this;
@@ -119,7 +86,7 @@
 
             // TODO: maybe only call it if a certain percentage of voters have 
             // cast their ballot?
-            return [district.label, winner];
+            return [district.id, winner];
           });
           return _.object(pairs);
         };
@@ -129,6 +96,16 @@
           return _.countBy(_.pairs(self.directMandates()), function(pair) {
             return pair[1];
           });
+        };
+
+        self.directMandatesByStateAndParty = function() {
+          // group direct mandates by state, then grouped by party.
+          var mandates = self.directMandates(),
+              states = _.groupBy(self.districts(), function(d) { return d.parent_id; });
+              seats = _.map(states, function(districts, state) {
+                return [state, _.countBy(districts, function(d) { return mandates[d.id]; })];
+              });
+          return _.object(seats);
         };
 
         self.totalValidNationalSecondaryVotes = function() {
@@ -149,7 +126,7 @@
           }));
         };
 
-        self.electedParties = function() {
+        self.factions = function() {
           // determine which parties have met the barring clause requirement.
           var parties = [];
 
@@ -167,6 +144,19 @@
           return _.uniq(parties);
         };
 
+        self.nonFactionSeatsByState = function() {
+          // calculate the number of seats per state which are allocated
+          // directly to a party which doesn't meet the barring clause.
+          var fs = self.factions(),
+              states = _.map(self.directMandatesByStateAndParty(), function(parties, state) {
+                var count = _.reduce(_.pairs(parties), function(m, p) {
+                  return !_.contains(fs, p[0]) ? m + p[1] : m;
+                  }, 0);
+                return [state, count];
+              });
+          return _.object(states);
+        }
+
       };
 
 
@@ -174,8 +164,8 @@
         var results = parseResults(data),
             election = new Election(results);
 
-        console.log(election.directMandatesByParty());
-        console.log(election.electedParties());
+        console.log(election.nonFactionSeatsByState());
+        //console.log(election.unbarredParties());
         //console.log(results);
         console.log('done!');
       });
