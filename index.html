@@ -145,12 +145,32 @@
           return name.replace(/ö/g, 'o').replace(/[^a-zA-Z0-9]/g, '');
         }
 
+        function summarizeCduCsu(tab) {
+          
+
+          var cdu = tab.parties.CDU,
+              csu = tab.parties.CSU,
+              cdu_csu = {
+                secondary_votes: cdu.secondary_votes + csu.secondary_votes,
+                total_seats: cdu.total_seats + csu.total_seats,
+                direct_mandates: cdu.direct_mandates + csu.direct_mandates,
+              }; 
+          //cdu_cdu = t
+          delete tab.parties.CDU;
+          delete tab.parties.CSU;
+          tab.parties['CDU/CSU'] = cdu_csu;
+        }
+
         function handleData(data) {
           var results = Bundestagswahl.parseResults(data),
               tabulator = new Bundestagswahl.Tabulator(results, results.result_type),
               tab = tabulator.tabulate(),
               previous_tabulator = new Bundestagswahl.Tabulator(results, 'Vorperiode'),
               previous_tab = previous_tabulator.tabulate();
+
+          summarizeCduCsu(tab);
+          summarizeCduCsu(previous_tab);
+          //console.log(tab.parties);
 
           // Format party results.
           tab.parties = _.map(tab.parties, function(v, k) {
