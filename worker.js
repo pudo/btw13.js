@@ -397,6 +397,7 @@ Bundestagswahl.Tabulator = function(results, result_type) {
         upper = self.upperDistribution(),
         lower = self.lowerDistribution(),
         fs = self.factions(),
+        total_seats = 0,
         directMandatesByParty = self.directMandatesByParty(),
         directMandatesByStateAndParty = self.directMandatesByStateAndParty(),
         nationalSecondaryVotes = self.totalNationalSecondaryVotesByParty(),
@@ -405,6 +406,7 @@ Bundestagswahl.Tabulator = function(results, result_type) {
     _.each(self.parties(), function(party) {
       var is_faction = _.contains(fs, party),
           seats = is_faction ? upper[party] : (directMandatesByParty[party] || 0);
+      total_seats += seats;
       parties[party] = {
         is_faction: is_faction,
         total_seats: seats,
@@ -432,6 +434,7 @@ Bundestagswahl.Tabulator = function(results, result_type) {
 
     return {
       summary: {
+        total_seats: total_seats,
         election: self.results.election_name,
         result: self.results.result_type,
         valid_votes: self.totalValidNationalSecondaryVotes(),

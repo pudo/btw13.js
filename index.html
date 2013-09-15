@@ -64,11 +64,20 @@
             <div class="col-xs-1">
               <span class="trend {{total_seats_trend}}">{{total_seats_diff_text}}</span>
             </div>
-            <!--div class="col-xs-2 numeric">
-              {{secondary_votes}}
-            </div-->
           </div>
         {{/parties}}
+        <div class="row result summary">
+          <div class="col-xs-8">
+            Insgesamt
+          </div>
+          <div class="col-xs-2 numeric">
+            {{summary.total_seats}}
+            <span class="legend">Sitze</span>
+          </div>
+          <div class="col-xs-1">
+            <span class="trend {{summary.total_seats_trend}}">{{summary.total_seats_diff_text}}</span>
+          </div>
+        </div>
       </div>
 
       <!--div class="container">
@@ -99,13 +108,16 @@
       </footer>
     </script>
     
+    <!-- -->
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/js/bootstrap.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js" charset="utf-8"></script>
-
     <script src="btw13.js" charset="utf-8"></script>
     <script src="js/bigboard.js" charset="utf-8"></script>
+    <!--
+    <script src="bigboard.js" charset="utf-8"></script>
+    -->
 
     <script type="text/javascript">
       var _gaq = _gaq || [];

@@ -70,9 +70,14 @@ $(function() {
     }
   }
 
+  
   function render(tab, previous_tab) {
     summarizeCduCsu(tab);
     summarizeCduCsu(previous_tab);
+    
+    tab.summary.total_seats_diff = tab.summary.total_seats - previous_tab.summary.total_seats;
+    tab.summary.total_seats_trend = numericTrend(tab.summary.total_seats_diff);
+    tab.summary.total_seats_diff_text = trendText(tab.summary.total_seats_diff);
 
     // Format party results.
     tab.parties = _.map(tab.parties, function(v, k) {
