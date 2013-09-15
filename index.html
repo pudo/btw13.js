@@ -13,7 +13,7 @@
   </head>
   <body>
     <div id="results-warning">
-      Alle dargestellten Daten sind Testdaten. Das Ergebnis der Bundestagswahl wird traditionsgemäß erst 
+      Alle dargestellten Daten sind Testdaten. Das Ergebnis der Bundestagswahl wird traditionell erst 
       nach deren Durchführung verkündet.
     </div>
 
@@ -146,16 +146,13 @@
         }
 
         function summarizeCduCsu(tab) {
-          
-
           var cdu = tab.parties.CDU,
               csu = tab.parties.CSU,
               cdu_csu = {
                 secondary_votes: cdu.secondary_votes + csu.secondary_votes,
                 total_seats: cdu.total_seats + csu.total_seats,
                 direct_mandates: cdu.direct_mandates + csu.direct_mandates,
-              }; 
-          //cdu_cdu = t
+              };
           delete tab.parties.CDU;
           delete tab.parties.CSU;
           tab.parties['CDU/CSU'] = cdu_csu;
