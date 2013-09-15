@@ -9,8 +9,8 @@ the German election system.
 This includes: 
 
 * Parsing of `kerg.csv`, the interim results file of the elections authority.
-* Tallying of votes and allocation of seats for the Bundestag (*Oberverteilung*).
-* Distribution of party seats amongst state parties (*Unterverteilung*).
+* Tallying of votes and allocation of seats for the Bundestag (`Oberverteilung`).
+* Distribution of party seats amongst state parties (`Unterverteilung`).
 * Emitting a descriptive JavaScript object to describe the election results.
 
 The algorithms used in this library are based off the descriptions on
