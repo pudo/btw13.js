@@ -39,6 +39,13 @@ h1, h2, h3 {
   font-family: 'SpiegelHeadlineWeb', Verdana, sans-serif;
 }
 
+#results-warning {
+  padding: 0.3em;
+  color: white;
+  background-color: red;
+  text-align: center;
+}
+
 header, footer {
   padding: 0.4em;
   background-color: #eee;
@@ -156,3 +163,30 @@ footer {
 .fg-npd, .fg-rep {
   color: #703800;
 }
+
+
+
+
+.states-list ul {
+  list-style-type: none;
+  margin: 2em 0 0 0;
+  padding: 0;
+}
+
+.states-list ul li {
+  display: block;
+  float: left;
+  min-width: 6.2%;
+  text-align: center;
+  font-size: 1.7em;
+  font-weight: bold;
+  color: #999;
+  margin: 0;
+  padding: 0;
+}
+
+.states-list ul li a, .states-list ul li a:hover {
+  color: #999;
+  text-decoration: none;
+}
+

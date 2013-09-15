@@ -12,6 +12,10 @@
 
   </head>
   <body>
+    <div id="results-warning">
+      Alle dargestellten Daten sind Testdaten. Das Ergebnis der Bundestagswahl wird traditionsgemäß erst 
+      nach deren Durchführung verkündet.
+    </div>
 
     <div id="airlock">
       <div class="container loading">
@@ -67,6 +71,25 @@
         {{/parties}}
       </div>
 
+      <!--div class="container">
+        <div class="row states-list">
+          <ul>
+            {{#states}}
+              <li><a href="#state-{{id}}">{{code}}</a></li>
+            {{/states}}
+          </ul>
+        </div>
+      </div>
+
+      <div class="container">
+        {{#states}}
+          <div class="row">
+            <a name="state-{{id}}"></a>
+            <h2>{{code}} <small>{{label}}</small></h2>
+          </div>
+        {{/states}}
+      </div-->
+
       <footer class="container">
         <div class="row">
           <div class="col-md-12">
@@ -84,6 +107,25 @@
     <script src="btw13.min.js" charset="utf-8"></script>
     <script>
       $(function() {
+        STATES = {
+            1: {seats: 22, code: 'SH'},
+            2: {seats: 13, code: 'HH'},
+            3: {seats: 59, code: 'NI'},
+            4: {seats: 5, code: 'BR'},
+            5: {seats: 128, code: 'NW'},
+            6: {seats: 43, code: 'HE'},
+            7: {seats: 30, code: 'RP'},
+            8: {seats: 76, code: 'BW'},
+            9: {seats: 92, code: 'BY'},
+            10: {seats: 7, code: 'SL'},
+            11: {seats: 24, code: 'BE'},
+            12: {seats: 19, code: 'BB'},
+            13: {seats: 13, code: 'MV'},
+            14: {seats: 32, code: 'SN'},
+            15: {seats: 15, code: 'ST'},
+            16: {seats: 17, code: 'TH'}
+        };
+
         var template = Handlebars.compile($('#bigboard-template').html());
 
         function numericTrend(n) {
@@ -145,7 +187,17 @@
           tab.parties = _.sortBy(tab.parties, function(e) {
             return e.percentage_num * -1;
           });
-          console.log(tab);
+
+          tab.states = _.map(tab.states, function(v, k) {
+            v.id = k;
+            v.code = STATES[k].code;
+            v.seats = STATES[k].seats;
+            return v;
+          });
+          tab.states = _.sortBy(tab.states, function(e) {
+            return e.code;
+          });
+          //console.log(tab);
           $('#airlock').html(template(tab));
         }
 
@@ -157,6 +209,18 @@
         });
         
       });
+    </script>
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-34039573-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
     </script>
   </body>
 </html>
