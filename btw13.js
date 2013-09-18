@@ -135,11 +135,12 @@ Bundestagswahl.parseResults = function(data) {
 };
 var Bundestagswahl = Bundestagswahl || {};
 
-Bundestagswahl.Tabulator = function(results, result_type) {
+Bundestagswahl.Tabulator = function(results, result_type, regime) {
   var self = this;
 
   // the raw result objects from the interim tallies.
   self.results = results;
+  self.regime = regime;
 
   self._filter_admin = function(level) {
     // find the distinct set of administrative regions
@@ -336,13 +337,13 @@ Bundestagswahl.Tabulator = function(results, result_type) {
     return _.min(divisors);
   };
 
-  self.upperDistribution = _.memoize(function() {
+  self.upperDistribution2013 = _.memoize(function() {
     // determine the number of seats available to each party on a national level, 
     // prior to their distribution to the states.
 
     // WARNING: does not include direct mandates gained by candidates without a 
     // faction.
-    console.log("Errechne Oberverteilung...");
+    console.log("Errechne Oberverteilung (2013 BWahlG)...");
 
     var seatsAvailable = self.regularSeatsCount() - self.nationalNonFactionSeats(),
         minimalSeats = self.minimalSeatsByParty(),
@@ -362,10 +363,44 @@ Bundestagswahl.Tabulator = function(results, result_type) {
     return distribution;
   });
 
-  self.lowerDistribution = _.memoize(function() {
+  self.upperDistribution2009 = _.memoize(function() {
+    var distribution = {};
+    //console.log(self.lowerDistribution());
+    _.each(self.lowerDistribution(), function(states, party) {
+      //console.log(states);
+      distribution[party] = _.reduce(states, function(m, n) { return n + m; }, 0);
+    });
+    //console.log(distribution);
+    return distribution;
+  });
+
+  self.upperDistribution = function() {
+    var regimes = {
+      '2009': self.upperDistribution2009,
+      '2013': self.upperDistribution2013
+    };
+    return regimes[self.regime]();
+  };
+
+  self.directDistribution = _.memoize(function() {
+    // Directly distribute seats on a federal level based on secondary vote results.
+    // This method is only used in the 2009 law. 
+    console.log("Errechne Oberverteilung (2009 BWahlG)...");
+
+    var seatsAvailable = self.regularSeatsCount() - self.nationalNonFactionSeats(),
+        fs = self.factions(),
+        results = self.totalNationalSecondaryVotesByParty();
+
+    // filter out non-faction secondary votes.
+    results = _.object(_.filter(_.pairs(results), function(p) { return _.contains(fs, p[0]); }));
+
+    return Bundestagswahl.saint_lague_iterative(results, seatsAvailable, {});
+  });
+
+  self.lowerDistribution2013 = _.memoize(function() {
     // distribute the seats allocated to the parties in upperDistribution to
     // state lists and direct mandates.
-    console.log("Errechne Unterverteilung...");
+    console.log("Errechne Unterverteilung (2013 BWahlG)...");
 
     var results = self.secondaryResultsByState(),
         partySeats = self.upperDistribution(),
@@ -382,6 +417,39 @@ Bundestagswahl.Tabulator = function(results, result_type) {
 
     return distribution;
   });
+
+  self.lowerDistribution2009 = _.memoize(function() {
+    // distribute the seats allocated to the parties in upperDistribution to
+    // state lists and direct mandates.
+    console.log("Errechne Unterverteilung (2009 BWahlG)...");
+    // cf. http://www.wahlrecht.de/bundestag/wahlsystem-2009.html
+
+    var results = self.secondaryResultsByState(),
+        partySeats = self.directDistribution(),
+        distribution = {},
+        directMandates = self.directMandatesByStateAndParty();
+    
+    _.each(partySeats, function(seats, party) {
+      var stateVotes = {};
+      _.each(results, function(votes, state) { stateVotes[state] = votes[party]; });
+      var mandates = {};
+      _.each(directMandates, function(ms, state) { mandates[state] = ms[party]; });
+      var minimalDistribution = Bundestagswahl.saint_lague_iterative(stateVotes, seats, {});
+      distribution[party] = {};
+      _.each(minimalDistribution, function(seats, state) {
+        distribution[party][state] = Math.max(seats, mandates[state] || 0);
+      });
+    });
+    return distribution;
+  });
+
+  self.lowerDistribution = function() {
+    var regimes = {
+      '2009': self.lowerDistribution2009,
+      '2013': self.lowerDistribution2013
+    };
+    return regimes[self.regime]();
+  };
 
   self.tabulate = function() {
     // generate an object to interpret the vote results.
