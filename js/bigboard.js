@@ -53,7 +53,7 @@ $(function() {
 
   function handleData(data) {
     var results = Bundestagswahl.parseResults(data);
-    results.regime = '2009';
+    results.regime = '2013';
     if (window.Worker) {
       if (!worker) {
         worker = new Worker('worker.js');
