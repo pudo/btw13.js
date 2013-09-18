@@ -80,8 +80,8 @@
         </div>
       </div>
 
-      <!--div class="container">
-        <div class="row states-list">
+      <div class="container states-list">
+        <div class="row">
           <ul>
             {{#states}}
               <li><a href="#state-{{id}}">{{code}}</a></li>
@@ -93,11 +93,13 @@
       <div class="container">
         {{#states}}
           <div class="row">
-            <a name="state-{{id}}"></a>
-            <h2>{{code}} <small>{{label}}</small></h2>
+            <div class="col-xs-12">
+              <a name="state-{{id}}"></a>
+              <p>{{label}} ({{code}})</p>
+            </div>
           </div>
         {{/states}}
-      </div-->
+      </div>
 
       <footer class="container">
         <div class="row">

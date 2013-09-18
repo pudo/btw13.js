@@ -33,11 +33,13 @@ a, a:visited, a:hover {
   color: red;
 }
 
+/*
 h1, h2, h3 {
   line-height: 1.1em;
   font-weight: normal;
   font-family: 'SpiegelHeadlineWeb', Verdana, sans-serif;
 }
+*/
 
 #results-warning {
   padding: 0.3em;
@@ -169,11 +171,16 @@ footer {
 }
 
 
-
+.states-list {
+  padding: 0.4em;
+  background-color: #eee;
+  border-bottom: 0.2em solid #bbb;
+  border-top: 0.2em solid #bbb;
+  margin-top: 2em;
+}
 
 .states-list ul {
   list-style-type: none;
-  margin: 2em 0 0 0;
   padding: 0;
 }
 
@@ -182,15 +189,19 @@ footer {
   float: left;
   min-width: 6.2%;
   text-align: center;
-  font-size: 1.7em;
+  font-size: 1.2em;
   font-weight: bold;
   color: #999;
   margin: 0;
   padding: 0;
 }
 
-.states-list ul li a, .states-list ul li a:hover {
+.states-list ul li a {
   color: #999;
+}
+
+.states-list ul li a:hover {
+  color: #000;
   text-decoration: none;
 }
 
