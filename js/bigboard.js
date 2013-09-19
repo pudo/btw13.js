@@ -132,7 +132,7 @@ $(function() {
     var $toggleRegime = $('.toggle-regime');
 
     $toggleRegime.removeClass('active');
-    $('.toggle-regime[data-regime="' + currentRegime + '"').addClass('active');
+    $('.toggle-regime[data-regime="' + currentRegime + '"]').addClass('active');
 
     $toggleRegime.click(function(e) {
       currentRegime = $(e.target).data('regime');
