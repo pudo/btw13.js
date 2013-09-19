@@ -19,6 +19,7 @@ $(function() {
   };
 
   var template = Handlebars.compile($('#bigboard-template').html()),
+      currentRegime = '2013',
       worker;
 
   function numericTrend(n) {
@@ -53,7 +54,7 @@ $(function() {
 
   function handleData(data) {
     var results = Bundestagswahl.parseResults(data);
-    results.regime = '2013';
+    results.regime = currentRegime;
     if (window.Worker) {
       if (!worker) {
         worker = new Worker('worker.js');
@@ -64,7 +65,7 @@ $(function() {
       worker.postMessage(results);
     } else {
       var tabulator = new Bundestagswahl.Tabulator(results, results.result_type, results.regime),
-          previous_tabulator = new Bundestagswahl.Tabulator(results, 'Vorperiode', results.regime);
+          previous_tabulator = new Bundestagswahl.Tabulator(results, 'Vorperiode', '2009');
       render(
         tabulator.tabulate(),
         previous_tabulator.tabulate());
@@ -127,13 +128,31 @@ $(function() {
     });
     console.log(tab);
     $('#airlock').html(template(tab));
+
+    var $toggleRegime = $('.toggle-regime');
+
+    $toggleRegime.removeClass('active');
+    $('.toggle-regime[data-regime="' + currentRegime + '"').addClass('active');
+
+    $toggleRegime.click(function(e) {
+      currentRegime = $(e.target).data('regime');
+      $('.regime-change').html('Wird berechnet...');
+      reload();
+      return false;
+    });
   }
 
-  $.ajax({
-    url: 'data/kerg.csv',
-    dataType: 'text',
-    success: handleData,
-    mimeType: 'text/plain; charset=iso-8859-1'
-  });
+  function reload() {
+    // TODO spinner of some sort.
+    $.ajax({
+      url: 'data/kerg.csv',
+      dataType: 'text',
+      cache: true,
+      success: handleData,
+      mimeType: 'text/plain; charset=iso-8859-1'
+    });
+  }
 
+  reload();
+  
 });

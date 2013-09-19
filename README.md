@@ -17,4 +17,7 @@ The algorithms used in this library are based off the descriptions on
 [Wahlrecht.de](http://wahlrecht.de), as well as the [22. Law to Change the Federal
 Election Law](http://dip21.bundestag.de/dip21/btd/17/118/1711819.pdf).
 
+For comparison, the library also supports the electoral law used in the 2009
+federal elections.
+
 Licensed under MIT, contact: friedrich@pudo.org.

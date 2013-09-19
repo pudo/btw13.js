@@ -70,6 +70,14 @@ footer {
   border-top: 0.2em solid #bbb;
 }
 
+.regime-change {
+  text-align: right;
+}
+
+.regime-change .toggle-regime.active {
+  font-weight: bold;
+}
+
 .loading {
   text-align: center;
   margin-top: 3em;

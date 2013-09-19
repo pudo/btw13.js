@@ -605,7 +605,7 @@ $(function() {
 
   function handleData(data) {
     var results = Bundestagswahl.parseResults(data);
-    results.regime = '2009';
+    results.regime = '2013';
     if (window.Worker) {
       if (!worker) {
         worker = new Worker('worker.js');
@@ -616,7 +616,7 @@ $(function() {
       worker.postMessage(results);
     } else {
       var tabulator = new Bundestagswahl.Tabulator(results, results.result_type, results.regime),
-          previous_tabulator = new Bundestagswahl.Tabulator(results, 'Vorperiode', results.regime);
+          previous_tabulator = new Bundestagswahl.Tabulator(results, 'Vorperiode', '2009');
       render(
         tabulator.tabulate(),
         previous_tabulator.tabulate());
