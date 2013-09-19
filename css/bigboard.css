@@ -7,21 +7,21 @@ body {
 /* Small devices (tablets, 768px and up) */
 @media (min-width: 768px) {
   body {
-    font-size: 1.4em;
+    font-size: 1.3em;
   }
 }
 
 /* Medium devices (desktops, 992px and up) */
 @media (min-width: 992px) {
   body {
-    font-size: 1.6em;
+    font-size: 1.5em;
   }
 }
 
 /* Large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
   body {
-    font-size: 1.8em;
+    font-size: 1.7em;
   }
 }
 
@@ -46,6 +46,16 @@ h1, h2, h3 {
   color: white;
   background-color: red;
   text-align: center;
+}
+
+#loading-spinner {
+  position: absolute;
+  display: none;
+  padding: 0.3em;
+  color: black;
+  background-color: yellow;
+  text-align: center;
+  width: 100%;
 }
 
 header, footer {

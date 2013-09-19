@@ -20,6 +20,7 @@ $(function() {
 
   var template = Handlebars.compile($('#bigboard-template').html()),
       currentRegime = '2013',
+      $spinner = $('#loading-spinner'),
       worker;
 
   function numericTrend(n) {
@@ -137,22 +138,35 @@ $(function() {
     $toggleRegime.click(function(e) {
       currentRegime = $(e.target).data('regime');
       $('.regime-change').html('Wird berechnet...');
-      reload();
+      $spinner.slideDown(100, function() {
+        reload();
+      });
       return false;
     });
+
+    $spinner.slideUp();
   }
 
   function reload() {
-    // TODO spinner of some sort.
     $.ajax({
       url: 'data/kerg.csv',
       dataType: 'text',
-      cache: true,
+      cache: false,
       success: handleData,
       mimeType: 'text/plain; charset=iso-8859-1'
     });
   }
 
-  reload();
+  function init() {
+    setInterval(function() {
+      $spinner.slideDown(100, function() {
+        reload();
+        //_gaq.push(['_trackEvent', 'Reload', 'ReloadData', null]);
+      });
+    }, 3*60*1000);
+    reload();
+  }
+
+  init();
   
 });
