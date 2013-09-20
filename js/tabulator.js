@@ -91,6 +91,18 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     return result ? result.votes : 0;
   });
 
+  self.totalValidSecondaryVotesByState = _.memoize(function() {
+    // total number of valid secondary votes cast per state
+    var votes = {};
+    _.each(self.states(), function(state) {
+      var result = _.find(self._admin_results('state', state.id), function(r) {
+        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.group == 'Gültige';
+      });
+      votes[state.id] = result.votes;
+    });
+    return votes;
+  });
+
   self.totalNationalSecondaryVotesByParty = _.memoize(function() {
     // total number of secondary votes cast on the federal level for each party
     var results = _.filter(self._admin_results('federal', 99), function(r) {
@@ -329,6 +341,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
         directMandatesByParty = self.directMandatesByParty(),
         directMandatesByStateAndParty = self.directMandatesByStateAndParty(),
         nationalSecondaryVotes = self.totalNationalSecondaryVotesByParty(),
+        secondaryVotesByState = self.totalValidSecondaryVotesByState(),
         stateSecondaryVotes = self.secondaryResultsByState();
 
     _.each(self.parties(), function(party) {
@@ -356,6 +369,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
       });
       states[state.id] = {
         label: state.label,
+        secondary_votes: secondaryVotesByState[state.id],
         parties: parties
       };
     });

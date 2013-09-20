@@ -58,26 +58,31 @@ h1, h2, h3 {
   width: 100%;
 }
 
-header, footer {
+.light-bar {
+  text-transform: uppercase;
+  font-weight: bold; 
+  border-bottom: 0.2em solid #bbb;
+  border-top: 0.2em solid #bbb;
+  font-size: 1.2em;
   padding: 0.4em;
   background-color: #eee;
-  color: black;
+  color: #999;
 }
 
-header {
-  font-size: 1.2em;
-  border-bottom: 0.2em solid #bbb;
-  text-transform: uppercase;
-  font-weight: bold;
+header.light-bar {
+  border-top: 0;
 }
 
 header .election-name {
-  color: #aaa;
+
 }
 
-footer {
+footer.light-bar {
   margin-top: 3em;
-  border-top: 0.2em solid #bbb;
+  border-bottom: 0;
+  text-transform: none;
+  font-weight: normal;
+  font-size: 1.0em;
 }
 
 .regime-change {
@@ -110,7 +115,7 @@ footer {
   text-align: right;
 }
 
-.row.result .legend {
+.row.result .legend, .row.result .header {
   color: #666;
 }
 
@@ -132,6 +137,18 @@ footer {
   display: inline-block;
   min-width: 2.2em;
   text-align: right;
+}
+
+.row.result .box {
+  display: block;
+  float: left;
+  font-size: 0.6em;
+  padding: 0.3em;
+  color: black;
+  font-weight: bold;
+  text-align: center;
+  min-width: 2em;
+  margin-right: 1px;
 }
 
 .row.result.summary {
@@ -156,6 +173,14 @@ footer {
   color: #0c065d;
 }
 
+.bg-cducsu {
+ background-color: #0c065d; 
+}
+
+.row.result .box.bg-cducsu {
+  color: #fff;
+}
+
 .fg-cdu.light, .fg-csu.light {
   color: #fff;
 }
@@ -164,24 +189,48 @@ footer {
   color: #e30820;
 }
 
+.bg-spd {
+  background-color: #e30820;
+}
+
 .fg-fdp {
   color: #ffc907;
+}
+
+.bg-fdp {
+  background-color: #ffc907;
 }
 
 .fg-dielinke {
   color: #b939c1;
 }
 
+.bg-dielinke {
+  background-color: #b939c1;
+}
+
 .fg-grune {
   color: #349b09;
+}
+
+.bg-grune {
+  background-color: #349b09;
 }
 
 .fg-piraten {
   color: #f60;
 }
 
+.bg-piraten {
+  background-color: #f60;
+}
+
 .fg-afd {
   color: #97d2fb;
+}
+
+.bg-afd {
+  background-color: #97d2fb;
 }
 
 .fg-npd, .fg-rep {
@@ -189,37 +238,8 @@ footer {
 }
 
 
-.states-list {
-  padding: 0.4em;
-  background-color: #eee;
-  border-bottom: 0.2em solid #bbb;
-  border-top: 0.2em solid #bbb;
-  margin-top: 2em;
-}
-
-.states-list ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.states-list ul li {
-  display: block;
-  float: left;
-  min-width: 6.2%;
-  text-align: center;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #999;
-  margin: 0;
-  padding: 0;
-}
-
-.states-list ul li a {
-  color: #999;
-}
-
-.states-list ul li a:hover {
-  color: #000;
-  text-decoration: none;
+.separator {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
 }
 

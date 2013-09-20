@@ -267,6 +267,18 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     return result ? result.votes : 0;
   });
 
+  self.totalValidSecondaryVotesByState = _.memoize(function() {
+    // total number of valid secondary votes cast per state
+    var votes = {};
+    _.each(self.states(), function(state) {
+      var result = _.find(self._admin_results('state', state.id), function(r) {
+        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.group == 'Gültige';
+      });
+      votes[state.id] = result.votes;
+    });
+    return votes;
+  });
+
   self.totalNationalSecondaryVotesByParty = _.memoize(function() {
     // total number of secondary votes cast on the federal level for each party
     var results = _.filter(self._admin_results('federal', 99), function(r) {
@@ -505,6 +517,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
         directMandatesByParty = self.directMandatesByParty(),
         directMandatesByStateAndParty = self.directMandatesByStateAndParty(),
         nationalSecondaryVotes = self.totalNationalSecondaryVotesByParty(),
+        secondaryVotesByState = self.totalValidSecondaryVotesByState(),
         stateSecondaryVotes = self.secondaryResultsByState();
 
     _.each(self.parties(), function(party) {
@@ -532,6 +545,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
       });
       states[state.id] = {
         label: state.label,
+        secondary_votes: secondaryVotesByState[state.id],
         parties: parties
       };
     });
@@ -551,7 +565,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
 
 };
 $(function() {
-  STATES = {
+  var STATES = {
       1: {seats: 22, code: 'SH'},
       2: {seats: 13, code: 'HH'},
       3: {seats: 59, code: 'NI'},
@@ -570,7 +584,12 @@ $(function() {
       16: {seats: 17, code: 'TH'}
   };
 
+  var RELEVANT_PARTIES = ['CDU/CSU', 'SPD', 'FDP', 'DIE LINKE', 'GRÜNE', 'PIRATEN', 'AfD'];
+
+
   var template = Handlebars.compile($('#bigboard-template').html()),
+      currentRegime = '2013',
+      $spinner = $('#loading-spinner'),
       worker;
 
   function numericTrend(n) {
@@ -605,7 +624,7 @@ $(function() {
 
   function handleData(data) {
     var results = Bundestagswahl.parseResults(data);
-    results.regime = '2013';
+    results.regime = currentRegime;
     if (window.Worker) {
       if (!worker) {
         worker = new Worker('worker.js');
@@ -669,23 +688,66 @@ $(function() {
     });
 
     tab.states = _.map(tab.states, function(v, k) {
+      summarizeCduCsu(v);
+      //summarizeCduCsu(previous_tab);
       v.id = k;
+      v.label = v.label.replace(/"/g, '');
       v.code = STATES[k].code;
       v.seats = STATES[k].seats;
+      //console.log(v);
+
+      v.relevant_parties = _.map(RELEVANT_PARTIES, function(party) {
+        var data = v.parties[party];
+        data.slug = partySlug(party);
+        data.name = party;
+        return data;
+      });
       return v;
+      
     });
     tab.states = _.sortBy(tab.states, function(e) {
       return e.code;
     });
     console.log(tab);
     $('#airlock').html(template(tab));
+
+    var $toggleRegime = $('.toggle-regime');
+
+    $toggleRegime.removeClass('active');
+    $('.toggle-regime[data-regime="' + currentRegime + '"]').addClass('active');
+
+    $toggleRegime.click(function(e) {
+      currentRegime = $(e.target).data('regime');
+      $('.regime-change').html('Wird berechnet...');
+      $spinner.slideDown(100, function() {
+        reload();
+      });
+      return false;
+    });
+
+    $spinner.slideUp();
   }
 
-  $.ajax({
-    url: 'data/kerg.csv',
-    dataType: 'text',
-    success: handleData,
-    mimeType: 'text/plain; charset=iso-8859-1'
-  });
+  function reload() {
+    $.ajax({
+      url: 'data/kerg.csv',
+      dataType: 'text',
+      cache: false,
+      success: handleData,
+      mimeType: 'text/plain; charset=iso-8859-1'
+    });
+  }
 
+  function init() {
+    setInterval(function() {
+      $spinner.slideDown(100, function() {
+        reload();
+        //_gaq.push(['_trackEvent', 'Reload', 'ReloadData', null]);
+      });
+    }, 3*60*1000);
+    reload();
+  }
+
+  init();
+  
 });

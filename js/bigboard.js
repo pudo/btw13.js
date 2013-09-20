@@ -1,5 +1,5 @@
 $(function() {
-  STATES = {
+  var STATES = {
       1: {seats: 22, code: 'SH'},
       2: {seats: 13, code: 'HH'},
       3: {seats: 59, code: 'NI'},
@@ -17,6 +17,9 @@ $(function() {
       15: {seats: 15, code: 'ST'},
       16: {seats: 17, code: 'TH'}
   };
+
+  var RELEVANT_PARTIES = ['CDU/CSU', 'SPD', 'FDP', 'DIE LINKE', 'GRÜNE', 'PIRATEN', 'AfD'];
+
 
   var template = Handlebars.compile($('#bigboard-template').html()),
       currentRegime = '2013',
@@ -118,11 +121,26 @@ $(function() {
       return e.percentage_num * -1;
     });
 
-    tab.states = _.map(tab.states, function(v, k) {
+    tab.states = _.map(tab.states, function(v, k, i) {
+      summarizeCduCsu(v);
+      //summarizeCduCsu(previous_tab);
       v.id = k;
+      v.label = v.label.replace(/"/g, '');
       v.code = STATES[k].code;
       v.seats = STATES[k].seats;
+      //console.log(v);
+
+      v.relevant_parties = _.map(RELEVANT_PARTIES, function(party) {
+        var data = v.parties[party];
+        data.slug = partySlug(party);
+        data.name = party;
+
+        data.percentage_num = (data.secondary_votes / v.secondary_votes) * 100;
+        data.percentage = Math.round(data.percentage_num);
+        return data;
+      });
       return v;
+
     });
     tab.states = _.sortBy(tab.states, function(e) {
       return e.code;

@@ -31,7 +31,7 @@
     </div>
 
     <script id="bigboard-template" type="text/x-handlebars-template">
-      <header class="container">
+      <header class="container light-bar">
         <div class="row">
           <div class="col-xs-10">
             <div class="election-name">{{summary.election}}</div>
@@ -91,20 +91,57 @@
             {{/states}}
           </ul>
         </div>
+      </div-->
+
+      <div class="container light-bar separator">
+        <div class="row">
+          <div class="col-xs-12">
+            Unterverteilung nach Bundesland
+          </div>
+        </div>
       </div>
 
       <div class="container">
+        <div class="row result">
+          <div class="col-xs-3">
+            &nbsp;
+          </div>
+          <div class="col-xs-3 header">
+            Zweitstimmenanteile
+          </div>
+          <div class="col-xs-3 header">
+            Direktmandate
+          </div>
+          <div class="col-xs-3 header">
+            Sitze
+          </div>
+        </div>
         {{#states}}
-          <div class="row">
-            <div class="col-xs-12">
-              <a name="state-{{id}}"></a>
-              <p>{{label}} ({{code}})</p>
+          <div class="row result">
+            <div class="col-xs-3 party-name">
+              {{label}}
+              <!--abbr title="{{label}}">{{code}}</abbr-->
+            </div>
+            <div class="col-xs-3">
+              {{#relevant_parties}}
+                <div class="box percent bg-{{slug}}">{{percentage}}</div>
+              {{/relevant_parties}}
+            </div>
+            <div class="col-xs-3">
+              {{#relevant_parties}}
+                <div class="box percent bg-{{slug}}">{{direct_mandates}}</div>
+              {{/relevant_parties}}
+            </div>
+            <div class="col-xs-3">
+              {{#relevant_parties}}
+                <div class="box percent bg-{{slug}}">{{total_seats}}</div>
+              {{/relevant_parties}}
             </div>
           </div>
         {{/states}}
-      </div-->
+      </div>
 
-      <footer class="container">
+      <footer class="container light-bar">
         <div class="row">
           <div class="col-md-6 col-xs-12">
             <a href="https://github.com/pudo/btw13.js">btw13.js</a>: Auswertung der Daten des Bundeswahlleiters.
