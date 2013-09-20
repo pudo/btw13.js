@@ -111,15 +111,20 @@ footer.light-bar {
   font-size: 1.3em;
 }
 
+.row.result.attached {
+  padding-top: 0;
+  margin-top: -0.3em;
+}
+
 .row.result .numeric {
   text-align: right;
 }
 
 .row.result .legend, .row.result .header {
-  color: #666;
+  color: #bbb;
 }
 
-.row.result.elected {
+.row.result.elected, .row.result.even {
   background-color: #222; 
 }
 
@@ -155,15 +160,15 @@ footer.light-bar {
   border-top: 1px solid #bbb;
 }
 
-.trend.neutral {
+.trend.neutral, .row.result .box.neutral {
   color: #666;
 }
 
-.trend.increase {
+.trend.increase, .row.result .box.increase {
   color: #349b09;
 }
 
-.trend.decrease {
+.trend.decrease, .row.result .box.decrease {
   color: #e30820;
 }
 
@@ -175,6 +180,11 @@ footer.light-bar {
 
 .bg-cducsu {
  background-color: #0c065d; 
+}
+
+.row.result.BY .box.bg-cducsu {
+  background-color: rgb(18, 149, 255);
+  color: #000;
 }
 
 .row.result .box.bg-cducsu {

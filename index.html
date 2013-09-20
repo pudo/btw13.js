@@ -117,24 +117,43 @@
           </div>
         </div>
         {{#states}}
-          <div class="row result">
+          <div class="row result {{code}} {{classes}}">
             <div class="col-xs-3 party-name">
               {{label}}
               <!--abbr title="{{label}}">{{code}}</abbr-->
             </div>
             <div class="col-xs-3">
               {{#relevant_parties}}
-                <div class="box percent bg-{{slug}}">{{percentage}}</div>
+                <div class="box bg-{{slug}}">{{percentage}}</div>
               {{/relevant_parties}}
             </div>
             <div class="col-xs-3">
               {{#relevant_parties}}
-                <div class="box percent bg-{{slug}}">{{direct_mandates}}</div>
+                <div class="box bg-{{slug}}">{{direct_mandates}}</div>
               {{/relevant_parties}}
             </div>
             <div class="col-xs-3">
               {{#relevant_parties}}
-                <div class="box percent bg-{{slug}}">{{total_seats}}</div>
+                <div class="box bg-{{slug}}">{{total_seats}}</div>
+              {{/relevant_parties}}
+            </div>
+          </div>
+          <div class="row result attached {{classes}}">
+            <div class="col-xs-3 party-name">
+            </div>
+            <div class="col-xs-3">
+              {{#relevant_parties}}
+                <div class="box {{percentage_trend}}">{{percentage_diff_text}}</div>
+              {{/relevant_parties}}
+            </div>
+            <div class="col-xs-3">
+              {{#relevant_parties}}
+                <div class="box {{direct_mandates_trend}}">{{direct_mandates_diff_text}}</div>
+              {{/relevant_parties}}
+            </div>
+            <div class="col-xs-3">
+              {{#relevant_parties}}
+                <div class="box {{total_seats_trend}}">{{total_seats_diff_text}}</div>
               {{/relevant_parties}}
             </div>
           </div>

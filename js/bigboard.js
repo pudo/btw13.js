@@ -38,6 +38,12 @@ $(function() {
     return '' + n;
   }
 
+  function shortTrendText(n) {
+    if (parseFloat(n)===0) return '-';
+    if (parseFloat(n)>0) return n;
+    return '' + Math.abs(n);
+  }
+
   function partySlug(name) {
     name = name.toLowerCase().replace(/ü/g, 'u').replace(/ä/g, 'a');
     return name.replace(/ö/g, 'o').replace(/[^a-zA-Z0-9]/g, '');
@@ -121,8 +127,11 @@ $(function() {
       return e.percentage_num * -1;
     });
 
-    tab.states = _.map(tab.states, function(v, k, i) {
+    tab.states = _.map(tab.states, function(v, k) {
+      var pv = previous_tab.states[k];
+
       summarizeCduCsu(v);
+      summarizeCduCsu(pv);
       //summarizeCduCsu(previous_tab);
       v.id = k;
       v.label = v.label.replace(/"/g, '');
@@ -131,12 +140,27 @@ $(function() {
       //console.log(v);
 
       v.relevant_parties = _.map(RELEVANT_PARTIES, function(party) {
-        var data = v.parties[party];
+        var data = v.parties[party],
+            pdata = pv.parties[party];
+
         data.slug = partySlug(party);
         data.name = party;
 
         data.percentage_num = (data.secondary_votes / v.secondary_votes) * 100;
+        data.prev_percentage = (pdata.secondary_votes / pv.secondary_votes) * 100;
         data.percentage = Math.round(data.percentage_num);
+
+        data.percentage_diff = data.percentage_num - data.prev_percentage;
+        data.percentage_trend = numericTrend(data.percentage_diff);
+        data.percentage_diff_text = shortTrendText(Math.round(data.percentage_diff));
+
+        data.total_seats_diff = data.total_seats - pdata.total_seats;
+        data.total_seats_trend = numericTrend(data.total_seats_diff);
+        data.total_seats_diff_text = shortTrendText(data.total_seats_diff);
+
+        data.direct_mandates_diff = data.direct_mandates - pdata.direct_mandates;
+        data.direct_mandates_trend = numericTrend(data.direct_mandates_diff);
+        data.direct_mandates_diff_text = shortTrendText(data.direct_mandates_diff);
         return data;
       });
       return v;
@@ -144,6 +168,9 @@ $(function() {
     });
     tab.states = _.sortBy(tab.states, function(e) {
       return e.code;
+    });
+    _.each(tab.states, function(s, i) {
+      s.classes = i % 2 === 0 ? 'even' : 'odd';
     });
     console.log(tab);
     $('#airlock').html(template(tab));
