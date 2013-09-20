@@ -180,7 +180,11 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
   var self = this;
 
   // the raw result objects from the interim tallies.
-  self.results = results;
+  self.election_name = results.election_name;
+  self.result_type = results.result_type;
+  self.results = _.filter(results, function(r) {
+    return r.type === result_type;
+  });
   self.regime = regime;
 
   self._filter_admin = function(level) {
@@ -225,7 +229,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     var pairs = _.map(self.districts(), function(district) {
       // get all the relevant results for party candidates. 
       var results = _.filter(self._admin_results('district', district.id), function(r) {
-        return r.is_party && r.vote_type == 'Erststimmen' && r.type == result_type;
+        return r.is_party && r.vote_type == 'Erststimmen';
       });
       var winner,
           bestResult = _.max(results, function(r) { return r.votes; });
@@ -262,7 +266,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
   self.totalValidNationalSecondaryVotes = _.memoize(function() {
     // total number of valid secondary votes cast on the federal level
     var result = _.find(self._admin_results('federal', 99), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.group == 'Gültige';
+        return r.vote_type == 'Zweitstimmen' && r.group == 'Gültige';
     });
     return result ? result.votes : 0;
   });
@@ -272,7 +276,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     var votes = {};
     _.each(self.states(), function(state) {
       var result = _.find(self._admin_results('state', state.id), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.group == 'Gültige';
+        return r.vote_type == 'Zweitstimmen' && r.group == 'Gültige';
       });
       votes[state.id] = result.votes;
     });
@@ -282,7 +286,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
   self.totalNationalSecondaryVotesByParty = _.memoize(function() {
     // total number of secondary votes cast on the federal level for each party
     var results = _.filter(self._admin_results('federal', 99), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.is_party;
+        return r.vote_type == 'Zweitstimmen' && r.is_party;
     });
     return _.object(_.map(results, function(r) {
       return [r.group, r.votes];
@@ -294,7 +298,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     var counts = {};
     _.each(self.states(), function(state) {
       var results = _.filter(self._admin_results('state', state.id), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.is_party;
+        return r.vote_type == 'Zweitstimmen' && r.is_party;
       });
       counts[state.id] = _.object(_.map(results, function(r) {
         return [r.group, r.votes];
@@ -553,8 +557,8 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     return {
       summary: {
         total_seats: total_seats,
-        election: self.results.election_name,
-        result: self.results.result_type,
+        election: self.election_name,
+        result: self.result_type,
         valid_votes: self.totalValidNationalSecondaryVotes(),
         regular_seats: self.regularSeatsCount()
       },
@@ -602,6 +606,12 @@ $(function() {
     if (parseFloat(n)===0) return '';
     if (parseFloat(n)>0) return '+' + n;
     return '' + n;
+  }
+
+  function shortTrendText(n) {
+    if (parseFloat(n)===0) return '-';
+    if (parseFloat(n)>0) return n;
+    return '' + Math.abs(n);
   }
 
   function partySlug(name) {
@@ -652,8 +662,10 @@ $(function() {
     tab.summary.total_seats_diff_text = trendText(tab.summary.total_seats_diff);
 
     // Format party results.
-    tab.parties = _.map(tab.parties, function(v, k) {
-      var pv = previous_tab.parties[k];
+    tab.parties = _.map(RELEVANT_PARTIES, function(k, i) {
+    //tab.parties = _.map(tab.parties, function(v, k) {
+      var v = tab.parties[k],
+          pv = previous_tab.parties[k];
       v.name = k;
       v.slug = partySlug(k);
 
@@ -683,12 +695,15 @@ $(function() {
     tab.parties = _.filter(tab.parties, function(e) {
       return e.percentage_num > 0.4;
     });
-    tab.parties = _.sortBy(tab.parties, function(e) {
-      return e.percentage_num * -1;
-    });
+    //tab.parties = _.sortBy(tab.parties, function(e) {
+    //  return e.percentage_num * -1;
+    //});
 
     tab.states = _.map(tab.states, function(v, k) {
+      var pv = previous_tab.states[k];
+
       summarizeCduCsu(v);
+      summarizeCduCsu(pv);
       //summarizeCduCsu(previous_tab);
       v.id = k;
       v.label = v.label.replace(/"/g, '');
@@ -697,16 +712,37 @@ $(function() {
       //console.log(v);
 
       v.relevant_parties = _.map(RELEVANT_PARTIES, function(party) {
-        var data = v.parties[party];
+        var data = v.parties[party],
+            pdata = pv.parties[party];
+
         data.slug = partySlug(party);
         data.name = party;
+
+        data.percentage_num = (data.secondary_votes / v.secondary_votes) * 100;
+        data.prev_percentage = (pdata.secondary_votes / pv.secondary_votes) * 100;
+        data.percentage = Math.round(data.percentage_num);
+
+        data.percentage_diff = data.percentage_num - data.prev_percentage;
+        data.percentage_trend = numericTrend(data.percentage_diff);
+        data.percentage_diff_text = shortTrendText(Math.round(data.percentage_diff));
+
+        data.total_seats_diff = data.total_seats - pdata.total_seats;
+        data.total_seats_trend = numericTrend(data.total_seats_diff);
+        data.total_seats_diff_text = shortTrendText(data.total_seats_diff);
+
+        data.direct_mandates_diff = data.direct_mandates - pdata.direct_mandates;
+        data.direct_mandates_trend = numericTrend(data.direct_mandates_diff);
+        data.direct_mandates_diff_text = shortTrendText(data.direct_mandates_diff);
         return data;
       });
       return v;
-      
+
     });
     tab.states = _.sortBy(tab.states, function(e) {
       return e.code;
+    });
+    _.each(tab.states, function(s, i) {
+      s.classes = i % 2 === 0 ? 'even' : 'odd';
     });
     console.log(tab);
     $('#airlock').html(template(tab));

@@ -191,8 +191,8 @@ footer.light-bar {
   color: #fff;
 }
 
-.fg-cdu.light, .fg-csu.light {
-  color: #fff;
+.fg-cducsu.light {
+  color: rgb(18, 149, 255);
 }
 
 .fg-spd {

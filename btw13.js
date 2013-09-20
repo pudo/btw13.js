@@ -139,7 +139,11 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
   var self = this;
 
   // the raw result objects from the interim tallies.
-  self.results = results;
+  self.election_name = results.election_name;
+  self.result_type = results.result_type;
+  self.results = _.filter(results, function(r) {
+    return r.type === result_type;
+  });
   self.regime = regime;
 
   self._filter_admin = function(level) {
@@ -184,7 +188,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     var pairs = _.map(self.districts(), function(district) {
       // get all the relevant results for party candidates. 
       var results = _.filter(self._admin_results('district', district.id), function(r) {
-        return r.is_party && r.vote_type == 'Erststimmen' && r.type == result_type;
+        return r.is_party && r.vote_type == 'Erststimmen';
       });
       var winner,
           bestResult = _.max(results, function(r) { return r.votes; });
@@ -221,7 +225,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
   self.totalValidNationalSecondaryVotes = _.memoize(function() {
     // total number of valid secondary votes cast on the federal level
     var result = _.find(self._admin_results('federal', 99), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.group == 'Gültige';
+        return r.vote_type == 'Zweitstimmen' && r.group == 'Gültige';
     });
     return result ? result.votes : 0;
   });
@@ -231,7 +235,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     var votes = {};
     _.each(self.states(), function(state) {
       var result = _.find(self._admin_results('state', state.id), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.group == 'Gültige';
+        return r.vote_type == 'Zweitstimmen' && r.group == 'Gültige';
       });
       votes[state.id] = result.votes;
     });
@@ -241,7 +245,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
   self.totalNationalSecondaryVotesByParty = _.memoize(function() {
     // total number of secondary votes cast on the federal level for each party
     var results = _.filter(self._admin_results('federal', 99), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.is_party;
+        return r.vote_type == 'Zweitstimmen' && r.is_party;
     });
     return _.object(_.map(results, function(r) {
       return [r.group, r.votes];
@@ -253,7 +257,7 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     var counts = {};
     _.each(self.states(), function(state) {
       var results = _.filter(self._admin_results('state', state.id), function(r) {
-        return r.vote_type == 'Zweitstimmen' && r.type == result_type && r.is_party;
+        return r.vote_type == 'Zweitstimmen' && r.is_party;
       });
       counts[state.id] = _.object(_.map(results, function(r) {
         return [r.group, r.votes];
@@ -512,8 +516,8 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
     return {
       summary: {
         total_seats: total_seats,
-        election: self.results.election_name,
-        result: self.results.result_type,
+        election: self.election_name,
+        result: self.result_type,
         valid_votes: self.totalValidNationalSecondaryVotes(),
         regular_seats: self.regularSeatsCount()
       },

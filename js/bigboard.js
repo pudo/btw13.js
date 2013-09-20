@@ -92,8 +92,10 @@ $(function() {
     tab.summary.total_seats_diff_text = trendText(tab.summary.total_seats_diff);
 
     // Format party results.
-    tab.parties = _.map(tab.parties, function(v, k) {
-      var pv = previous_tab.parties[k];
+    tab.parties = _.map(RELEVANT_PARTIES, function(k, i) {
+    //tab.parties = _.map(tab.parties, function(v, k) {
+      var v = tab.parties[k],
+          pv = previous_tab.parties[k];
       v.name = k;
       v.slug = partySlug(k);
 
@@ -123,9 +125,9 @@ $(function() {
     tab.parties = _.filter(tab.parties, function(e) {
       return e.percentage_num > 0.4;
     });
-    tab.parties = _.sortBy(tab.parties, function(e) {
-      return e.percentage_num * -1;
-    });
+    //tab.parties = _.sortBy(tab.parties, function(e) {
+    //  return e.percentage_num * -1;
+    //});
 
     tab.states = _.map(tab.states, function(v, k) {
       var pv = previous_tab.states[k];
