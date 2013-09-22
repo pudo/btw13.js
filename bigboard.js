@@ -530,9 +530,9 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
       total_seats += seats;
       parties[party] = {
         is_faction: is_faction,
-        total_seats: seats,
+        total_seats: seats || 0,
         direct_mandates: directMandatesByParty[party] || 0,
-        secondary_votes: nationalSecondaryVotes[party]
+        secondary_votes: nationalSecondaryVotes[party] || 0
       };
     });
 
@@ -542,14 +542,14 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
         var dm = directMandatesByStateAndParty[state.id][party] || 0,
             seats = lower[party] ? lower[party][state.id] || dm : dm;
         parties[party] = {
-          total_seats: seats,
-          direct_mandates: dm,
+          total_seats: seats || 0,
+          direct_mandates: dm || 0,
           secondary_votes: stateSecondaryVotes[state.id][party] || 0
         };
       });
       states[state.id] = {
-        label: state.label,
-        secondary_votes: secondaryVotesByState[state.id],
+        label: state.label || '',
+        secondary_votes: secondaryVotesByState[state.id] || 0,
         parties: parties
       };
     });
@@ -620,8 +620,8 @@ $(function() {
   }
 
   function summarizeCduCsu(tab) {
-    var cdu = tab.parties.CDU,
-        csu = tab.parties.CSU,
+    var cdu = tab.parties.CDU || {},
+        csu = tab.parties.CSU || {},
         cdu_csu = {
           secondary_votes: cdu.secondary_votes + csu.secondary_votes,
           total_seats: cdu.total_seats + csu.total_seats,
@@ -664,7 +664,7 @@ $(function() {
     // Format party results.
     tab.parties = _.map(RELEVANT_PARTIES, function(k, i) {
     //tab.parties = _.map(tab.parties, function(v, k) {
-      var v = tab.parties[k],
+      var v = tab.parties[k] || {},
           pv = previous_tab.parties[k];
       v.name = k;
       v.slug = partySlug(k);

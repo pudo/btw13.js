@@ -489,9 +489,9 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
       total_seats += seats;
       parties[party] = {
         is_faction: is_faction,
-        total_seats: seats,
+        total_seats: seats || 0,
         direct_mandates: directMandatesByParty[party] || 0,
-        secondary_votes: nationalSecondaryVotes[party]
+        secondary_votes: nationalSecondaryVotes[party] || 0
       };
     });
 
@@ -501,14 +501,14 @@ Bundestagswahl.Tabulator = function(results, result_type, regime) {
         var dm = directMandatesByStateAndParty[state.id][party] || 0,
             seats = lower[party] ? lower[party][state.id] || dm : dm;
         parties[party] = {
-          total_seats: seats,
-          direct_mandates: dm,
+          total_seats: seats || 0,
+          direct_mandates: dm || 0,
           secondary_votes: stateSecondaryVotes[state.id][party] || 0
         };
       });
       states[state.id] = {
-        label: state.label,
-        secondary_votes: secondaryVotesByState[state.id],
+        label: state.label || '',
+        secondary_votes: secondaryVotesByState[state.id] || 0,
         parties: parties
       };
     });

@@ -50,8 +50,8 @@ $(function() {
   }
 
   function summarizeCduCsu(tab) {
-    var cdu = tab.parties.CDU,
-        csu = tab.parties.CSU,
+    var cdu = tab.parties.CDU || {},
+        csu = tab.parties.CSU || {},
         cdu_csu = {
           secondary_votes: cdu.secondary_votes + csu.secondary_votes,
           total_seats: cdu.total_seats + csu.total_seats,
@@ -94,13 +94,13 @@ $(function() {
     // Format party results.
     tab.parties = _.map(RELEVANT_PARTIES, function(k, i) {
     //tab.parties = _.map(tab.parties, function(v, k) {
-      var v = tab.parties[k],
-          pv = previous_tab.parties[k];
+      var v = tab.parties[k] || {},
+          pv = previous_tab.parties[k] || {};
       v.name = k;
       v.slug = partySlug(k);
 
       v.percentage_num = (v.secondary_votes / tab.summary.valid_votes*100);
-      v.prev_percentage = (pv.secondary_votes / previous_tab.summary.valid_votes*100);
+      v.prev_percentage = ((pv.secondary_votes || 0) / previous_tab.summary.valid_votes*100);
       v.percentage = v.percentage_num.toFixed(1);
 
       v.percentage_diff = v.percentage_num - v.prev_percentage;
